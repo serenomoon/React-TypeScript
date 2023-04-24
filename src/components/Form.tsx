@@ -1,21 +1,37 @@
-import {useState} from 'react';
+import useNewSubForm from '../hooks/useNewSubForm';
+import { Sub } from '../types';
 
-export const Form = () => {
+interface FormProps {
+    onNewSub: (newSub: Sub) => void
+}
 
-    const [inputValues, setInputValues] = useState({
-        nick: '',
-        subMonths: 0,
-        avatar: '',
-        description: ''
-    })
 
-    const handleSubmit = () => {}
+export const Form = ({ onNewSub }: FormProps) => {
+
+    // const [inputValues, setInputValues] = useState<FormState["inputValues"]>(INITIAL_STATE)
+
+    const [inputValues, dispatch] = useNewSubForm()
+
+    const handleSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
+        evt.preventDefault()
+        onNewSub(inputValues)
+        dispatch({ type:"clear" })
+    }
 
     const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setInputValues({
-            ...inputValues,
-            [evt.target.name]: evt.target.value
+        const {name, value} = evt.target
+
+        dispatch({
+            type: "change_value",
+            payload: {
+                inputName: name,
+                inputValue: value
+            }
         })
+    }
+
+    const handleClear = () => {
+        dispatch({ type:"clear" })
     }
 
     return(
@@ -29,7 +45,8 @@ export const Form = () => {
                 type='text' name='avatar' placeholder='avatar' />
                 <textarea onChange={handleChange} value={inputValues.description}
                 name='description' placeholder='description' />
-                <button>Save new Sub!</button>
+                <button type="button" onClick={handleClear}>Clear the form</button>
+                <button type="submit">Save new Sub!</button>
             </form>
         </div>
     )
